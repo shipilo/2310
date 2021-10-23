@@ -212,7 +212,7 @@ namespace Met_2310
         }
 		static bool CheckInterface(Object obj)
         {
-			return obj is System.IFormattable;
+			return obj is IFormattable;
         }
 		static void SearchMail(ref string s)
         {
