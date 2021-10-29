@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Les_2310
 {
@@ -23,9 +22,10 @@ namespace Les_2310
                 company.Levels.Last.Value.CurrentPersons["О Ильхам"],
                 new Person("Оркадий", new List<Person>() { new Person("Володя") }));
 
-            company.AddLevel("Системный_сектор",
+            company.AddLevel(
                 company.Levels.Last.Value.CurrentPersons["Оркадий"],
-                new Person("Ильшат"));
+                new Person("Ильшат", "Системный_сектор"),
+                new Person("Сергей", "Сектор_разработки_и_сопровождения"));
 
             company.AddLevel("Системный_сектор",
                company.Levels.Last.Value.CurrentPersons["Ильшат"],
@@ -37,20 +37,16 @@ namespace Les_2310
                 new Person("Витя"),
                 new Person("Женя"));
 
-            company.AddLevel("Сектор_разработки_и_сопровождения",
-               company.Levels.Last.Previous.Previous.Previous.Value.CurrentPersons["Оркадий"],
-               new Person("Сергей"));
+            company.AddPersons(company.Levels.Last.Previous,
+                company.Levels.Last.Previous.Previous.Value.CurrentPersons["Сергей"],
+                new Person("Ляйсан", "Сектор_разработки_и_сопровождения"));
 
-            company.AddLevel("Сектор_разработки_и_сопровождения",
-               company.Levels.Last.Value.CurrentPersons["Сергей"],
-               new Person("Ляйсан"));
-
-            company.AddLevel("Сектор_разработки_и_сопровождения",
-                company.Levels.Last.Value.CurrentPersons["Ляйсан"],
-                new Person("Марат"),
-                new Person("Дина"),
-                new Person("Ильдар"),
-                new Person("Антон"));
+            company.AddPersons(company.Levels.Last,
+                company.Levels.Last.Previous.Value.CurrentPersons["Ляйсан"],
+                new Person("Марат", "Сектор_разработки_и_сопровождения"),
+                new Person("Дина", "Сектор_разработки_и_сопровождения"),
+                new Person("Ильдар", "Сектор_разработки_и_сопровождения"),
+                new Person("Антон", "Сектор_разработки_и_сопровождения"));
 
             List<Problem> problems = new List<Problem>();
 
@@ -76,7 +72,7 @@ namespace Les_2310
                         {
                             if (company.LevelOfPersons.Keys.Contains(appointing) && company.LevelOfPersons.Keys.Contains(appointee))
                             {
-                                problems.Add(new Problem((Tag)tag, new Person(appointing), new Person(appointee)));
+                                problems.Add(new Problem((Tag)tag, company.LevelOfPersons[appointing].Value.CurrentPersons[appointing], company.LevelOfPersons[appointee].Value.CurrentPersons[appointee]));
                                 Console.WriteLine("Задача добавлена.");
                             }
                         }
@@ -84,16 +80,15 @@ namespace Les_2310
                 }
             }
             int k = 0;
-            foreach(Problem problem in problems)
+            foreach (Problem problem in problems)
             {
                 bool result = false;
-                
-                LinkedListNode<Hierarchy.Level> linkLevel = company.LevelOfPersons[problem.Appointee.Name];                
+
                 Person linkPerson = problem.Appointee;
 
-                if (problem.Tag.ToString().Equals(linkLevel.Value.Tag))
+                if (problem.Tag.ToString().Equals(linkPerson.Tag))
                 {
-                    while (!(linkLevel == null || linkPerson == null))
+                    while (linkPerson != null)
                     {
                         foreach (Person dep in linkPerson.DepPersons)
                         {
@@ -113,8 +108,7 @@ namespace Les_2310
                             }
                             else
                             {
-                                linkPerson = linkLevel.Value.UnderPerson;
-                                linkLevel = linkLevel.Previous;
+                                linkPerson = linkPerson.UnderPerson;
                             }
                         }
                     }
